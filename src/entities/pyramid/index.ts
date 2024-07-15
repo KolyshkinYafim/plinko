@@ -1,13 +1,17 @@
-import * as Pixi from "pixi.js";
-import Ball from "../ball";
+import {
+  Sprite as PixiSprite,
+  Application as PixiApplication,
+  Assets as PixiAssets,
+} from "pixi.js";
 import Matter from "matter-js";
-import { spawnPosition } from "../../constants";
-import Basket from "../basket/index";
+import Ball from "entities/ball";
+import Basket from "entities/basket";
+import { spawnPosition } from "constants/index";
 
 export class Pyramid {
   private balls: Ball[] = [];
   private baskets: Basket[] = [];
-  private spawn: Pixi.Sprite | null = null;
+  private spawn: PixiSprite | null = null;
   private x: number;
   private y: number;
   private rows: number;
@@ -16,7 +20,7 @@ export class Pyramid {
 
   constructor(
     engine: Matter.Engine,
-    app: Pixi.Application,
+    app: PixiApplication,
     rows: number,
     x: number,
     y: number,
@@ -32,14 +36,14 @@ export class Pyramid {
     this.create(engine, app);
   }
 
-  public create(engine: Matter.Engine, app: Pixi.Application) {
+  public create(engine: Matter.Engine, app: PixiApplication) {
     this.balls = [];
     this.spawn = null;
 
     const { Composite } = Matter;
 
-    Pixi.Assets.load("../../assets/svg/playball_hole.svg").then((res) => {
-      this.spawn = Pixi.Sprite.from(res);
+    PixiAssets.load("../../assets/svg/playball_hole.svg").then((res) => {
+      this.spawn = PixiSprite.from(res);
       this.spawn.anchor.set(0.5);
       this.spawn.x = this.x;
       this.spawn.y = this.y - this.radius - this.spacing * 2;

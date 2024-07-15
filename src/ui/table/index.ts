@@ -1,9 +1,9 @@
-import * as PIXI from "pixi.js";
-import { betsList } from "../../constants";
+import { Text as PixiText, Container as PixiContainer } from "pixi.js";
+import { betsList } from "constants/index";
 
-export default class Table extends PIXI.Container {
-  private headers: PIXI.Text[];
-  private dataRows: PIXI.Text[];
+export default class Table extends PixiContainer {
+  private headers: PixiText[];
+  private dataRows: PixiText[];
   private columnWidth: number[];
   private headerHeight: number;
   private rowHeight: number;
@@ -24,7 +24,7 @@ export default class Table extends PIXI.Container {
     this.dataRows = [];
 
     this.headerTexts.forEach((text, index) => {
-      const header = new PIXI.Text(text, {
+      const header = new PixiText(text, {
         fontFamily: "Arial",
         fontSize: 18,
         fill: 0xffffff,
@@ -58,7 +58,7 @@ export default class Table extends PIXI.Container {
       ];
 
       rowTexts.forEach((text, colIndex) => {
-        const rowText = new PIXI.Text(text, {
+        const rowText = new PixiText(text, {
           fontFamily: "Arial",
           fontSize: 14,
           fill: 0xffffff,

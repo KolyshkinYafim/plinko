@@ -1,8 +1,13 @@
-import * as Pixi from "pixi.js";
-import Matter from "matter-js";
-import PlayBall from "./entities/playball";
-import getRandomColor from "./helpers/getRandomColor";
-import { Pyramid } from "./entities/pyramid";
+import {
+  Sprite as PixiSprite,
+  Texture as PixiTexture,
+  Text as PixiText,
+} from "pixi.js";
+import Engine from "app/Engine";
+import Application from "./app/Application";
+import PlayBall from "entities/playball";
+import { Pyramid } from "entities/pyramid";
+import getRandomColor from "helpers/getRandomColor";
 import {
   autoPlayModeState,
   balance,
@@ -11,112 +16,32 @@ import {
   pyramidSettings,
   settings,
 } from "./constants/index";
-import Table from "./ui/table";
-import CounterBlock from "./ui/autoModeSelection";
-import LinesSelectionBlock from "./ui/linesSelection";
+import Table from "ui/table";
+import CounterBlock from "ui/autoModeSelection";
+import LinesSelectionBlock from "ui/linesSelection";
 
 let pyramidRows = pyramidSettings.rows;
 
 (async () => {
-  const app = new Pixi.Application();
-  await app.init({
-    antialias: true,
-    background: "#1099bb",
-    resizeTo: window,
-  });
-  document.body.appendChild(app.canvas);
+  const application = new Application();
+  const engine = new Engine();
 
-  const playButtonActiveTexture = await Pixi.Assets.load(
-    "./assets/svg/play_button_unactive.svg"
-  );
-  const playButtonUnactiveTexture = await Pixi.Assets.load(
-    "./assets/svg/play_button_active.svg"
-  );
+  await application.initWorld();
+  await application.loadAssets();
 
-  const plusBetButtoActiveTexture = await Pixi.Assets.load(
-    "./assets/svg/plus_button_active.svg"
-  );
+  application.injectIntoDOM();
+  application.initResizeListener();
 
-  const plusBetButtonUnactiveTexture = await Pixi.Assets.load(
-    "./assets/svg/plus_button_unactive.svg"
-  );
+  engine.initRunner();
 
-  const minusBetButtonActiveTexture = await Pixi.Assets.load(
-    "./assets/svg/minus_button_active.svg"
-  );
-
-  const minusBetButtonUnactiveTexture = await Pixi.Assets.load(
-    "./assets/svg/minus_button_unactive.svg"
-  );
-
-  const maxBetButtonActiveTexture = await Pixi.Assets.load(
-    "./assets/svg/max_button_active.svg"
-  );
-
-  const maxBetButtonBlockedTexture = await Pixi.Assets.load(
-    "./assets/svg/max_button_blocked.svg"
-  );
-
-  const minBetButtonActiveTexture = await Pixi.Assets.load(
-    "./assets/svg/min_button_active.svg"
-  );
-  const minBetButtonBlockedTexture = await Pixi.Assets.load(
-    "./assets/svg/min_button_blocked.svg"
-  );
-
-  const manualModeButtonActiveTexture = await Pixi.Assets.load(
-    "./assets/svg/manual_selection_active.svg"
-  );
-  const manualModeButtonUnactiveTexture = await Pixi.Assets.load(
-    "./assets/svg/manual_selection_unactive.svg"
-  );
-
-  const autoModeButtonActiveTexture = await Pixi.Assets.load(
-    "./assets/svg/automatic_selection_active.svg"
-  );
-
-  const autoModeButtonUnactiveTexture = await Pixi.Assets.load(
-    "./assets/svg/automatic_selection_unactive.svg"
-  );
-
-  const MatterEngine = Matter.Engine,
-    Render = Matter.Render,
-    Runner = Matter.Runner,
-    Bodies = Matter.Bodies,
-    Composite = Matter.Composite;
-
-  const engine = MatterEngine.create();
-  const world = engine.world;
-  world.gravity.y = 0.4;
-  const runner = Runner.create();
-  Matter.Runner.run(runner, engine);
-  const renderConfig = Render.create({
-    engine: engine,
-    options: {
-      width: app.screen.width,
-      height: app.screen.height,
-      wireframes: true,
-    },
-  });
-
-  Render.run(renderConfig);
-
-  const matterGround = Bodies.rectangle(
-    app.screen.width / 2,
-    app.screen.height,
-    app.screen.width,
-    50,
-    { isStatic: true }
-  );
-
-  Composite.add(world, [matterGround]);
+  const { width, height } = application.getDimensions();
 
   let pyramid = new Pyramid(
-    engine,
-    app,
+    engine.self,
+    application.self,
     8,
-    app.screen.width / 2,
-    app.screen.height / 2 - app.screen.height / 4,
+    width / 2,
+    height / 2 - height / 4,
     5,
     35
   );
@@ -130,35 +55,33 @@ let pyramidRows = pyramidSettings.rows;
   const createPlayBall = (): PlayBall | null => {
     if (balance.score < balance.bet) return null;
     balance.score -= balance.bet;
-    const ball = new PlayBall(engine, app, 15, getRandomColor());
+    const ball = new PlayBall(
+      engine.self,
+      application.self,
+      15,
+      getRandomColor()
+    );
     playBalls.push(ball);
     return ball;
   };
 
-  // window size update
   window.addEventListener("resize", () => {
-    app.renderer.resize(window.innerWidth, window.innerHeight);
-    Matter.Body.setPosition(matterGround, {
-      x: app.screen.width / 2,
-      y: app.screen.height + 25,
-    });
+    application.self.renderer.resize(window.innerWidth, window.innerHeight);
   });
 
-  //UI
-
-  const playButton = new Pixi.Sprite(playButtonActiveTexture);
+  const playButton = PixiSprite.from("playButtonActiveTexture");
   playButton.anchor.set(0.5);
-  playButton.x = app.screen.width / 2;
-  playButton.y = app.screen.height / 2 + app.screen.height / 3.5;
+  playButton.x = width / 2;
+  playButton.y = height / 2 + height / 3.5;
 
   playButton.interactive = true;
 
   playButton.on("pointerover", () => {
-    playButton.texture = playButtonUnactiveTexture;
+    playButton.texture = PixiTexture.from("playButtonUnactiveTexture");
   });
 
   playButton.on("pointerout", () => {
-    playButton.texture = playButtonActiveTexture;
+    playButton.texture = PixiTexture.from("playButtonActiveTexture");
   });
 
   playButton.on("pointerdown", () => {
@@ -175,9 +98,9 @@ let pyramidRows = pyramidSettings.rows;
     playButton.scale = 1;
   });
 
-  app.stage.addChild(playButton);
+  application.self.stage.addChild(playButton);
 
-  let betText = new Pixi.Text(`Bet ${balance.bet.toString()} $`, {
+  let betText = new PixiText(`Bet ${balance.bet.toString()} $`, {
     fontSize: 40,
     fill: 0xffffff,
     fontWeight: "bold",
@@ -187,9 +110,9 @@ let pyramidRows = pyramidSettings.rows;
   betText.x = playButton.x;
   betText.y = playButton.y + playButton.height / 1.5;
 
-  app.stage.addChild(betText);
+  application.self.stage.addChild(betText);
 
-  const plusBetButton = new Pixi.Sprite(plusBetButtoActiveTexture);
+  const plusBetButton = PixiSprite.from("plusBetButtoActiveTexture");
   plusBetButton.interactive = true;
   plusBetButton.anchor.set(0.5);
   plusBetButton.x = betText.x + betText.width;
@@ -197,19 +120,21 @@ let pyramidRows = pyramidSettings.rows;
 
   plusBetButton.on("pointerdown", () => {
     if (balance.bet >= settings.maxBet)
-      return (plusBetButton.texture = plusBetButtonUnactiveTexture);
+      return (plusBetButton.texture = PixiTexture.from(
+        "plusBetButtonUnactiveTexture"
+      ));
 
     balance.bet += settings.betStep;
 
     if (balance.bet > settings.minBet) {
-      minBetButton.texture = minBetButtonActiveTexture;
-      minusBetButton.texture = minusBetButtonActiveTexture;
+      minBetButton.texture = PixiTexture.from("minBetButtonActiveTexture");
+      minusBetButton.texture = PixiTexture.from("minusBetButtonActiveTexture");
     }
   });
 
-  app.stage.addChild(plusBetButton);
+  application.self.stage.addChild(plusBetButton);
 
-  const minusBetButton = new Pixi.Sprite(minusBetButtonActiveTexture);
+  const minusBetButton = PixiSprite.from("minusBetButtonActiveTexture");
   minusBetButton.interactive = true;
   minusBetButton.anchor.set(0.5);
   minusBetButton.x = betText.x - betText.width;
@@ -217,19 +142,21 @@ let pyramidRows = pyramidSettings.rows;
 
   minusBetButton.on("pointerdown", () => {
     if (balance.bet <= settings.minBet)
-      return (minusBetButton.texture = minusBetButtonUnactiveTexture);
+      return (minusBetButton.texture = PixiTexture.from(
+        "minusBetButtonUnactiveTexture"
+      ));
 
     balance.bet -= settings.betStep;
 
     if (balance.bet < settings.maxBet) {
-      maxBetButton.texture = maxBetButtonActiveTexture;
-      plusBetButton.texture = plusBetButtoActiveTexture;
+      maxBetButton.texture = PixiTexture.from("maxBetButtonActiveTexture");
+      plusBetButton.texture = PixiTexture.from("plusBetButtoActiveTexture");
     }
   });
 
-  app.stage.addChild(minusBetButton);
+  application.self.stage.addChild(minusBetButton);
 
-  const maxBetButton = new Pixi.Sprite(maxBetButtonActiveTexture);
+  const maxBetButton = PixiSprite.from("maxBetButtonActiveTexture");
   maxBetButton.interactive = true;
   maxBetButton.anchor.set(0.5);
   maxBetButton.x =
@@ -237,17 +164,17 @@ let pyramidRows = pyramidSettings.rows;
   maxBetButton.y = plusBetButton.y;
 
   maxBetButton.on("pointerdown", () => {
-    plusBetButton.texture = plusBetButtonUnactiveTexture;
-    maxBetButton.texture = maxBetButtonBlockedTexture;
+    plusBetButton.texture = PixiTexture.from("plusBetButtonUnactiveTexture");
+    maxBetButton.texture = PixiTexture.from("maxBetButtonBlockedTexture");
     balance.bet = settings.maxBet;
 
-    minBetButton.texture = minBetButtonActiveTexture;
-    minusBetButton.texture = minusBetButtonActiveTexture;
+    minBetButton.texture = PixiTexture.from("minBetButtonActiveTexture");
+    minusBetButton.texture = PixiTexture.from("minusBetButtonActiveTexture");
   });
 
-  app.stage.addChild(maxBetButton);
+  application.self.stage.addChild(maxBetButton);
 
-  const minBetButton = new Pixi.Sprite(minBetButtonActiveTexture);
+  const minBetButton = PixiSprite.from("minBetButtonActiveTexture");
   minBetButton.interactive = true;
   minBetButton.anchor.set(0.5);
   minBetButton.x =
@@ -255,17 +182,17 @@ let pyramidRows = pyramidSettings.rows;
   minBetButton.y = minusBetButton.y;
 
   minBetButton.on("pointerdown", () => {
-    minusBetButton.texture = minusBetButtonUnactiveTexture;
-    minBetButton.texture = minBetButtonBlockedTexture;
+    minusBetButton.texture = PixiTexture.from("minusBetButtonUnactiveTexture");
+    minBetButton.texture = PixiTexture.from("minBetButtonBlockedTexture");
     balance.bet = settings.minBet;
 
-    maxBetButton.texture = maxBetButtonActiveTexture;
-    plusBetButton.texture = plusBetButtoActiveTexture;
+    maxBetButton.texture = PixiTexture.from("maxBetButtonActiveTexture");
+    plusBetButton.texture = PixiTexture.from("plusBetButtoActiveTexture");
   });
 
-  app.stage.addChild(minBetButton);
+  application.self.stage.addChild(minBetButton);
 
-  const manualModeButton = new Pixi.Sprite(manualModeButtonActiveTexture);
+  const manualModeButton = PixiSprite.from("manualModeButtonActiveTexture");
   manualModeButton.interactive = true;
   manualModeButton.anchor.set(0.5);
   manualModeButton.scale = 0.7;
@@ -277,15 +204,17 @@ let pyramidRows = pyramidSettings.rows;
 
     playMode.manual = true;
     playMode.auto = false;
-    manualModeButton.texture = manualModeButtonActiveTexture;
-    autoModeButton.texture = autoModeButtonUnactiveTexture;
+    manualModeButton.texture = PixiTexture.from(
+      "manualModeButtonActiveTexture"
+    );
+    autoModeButton.texture = PixiTexture.from("autoModeButtonUnactiveTexture");
 
     autoModeCounter.visible = false;
   });
 
-  app.stage.addChild(manualModeButton);
+  application.self.stage.addChild(manualModeButton);
 
-  const autoModeButton = new Pixi.Sprite(autoModeButtonUnactiveTexture);
+  const autoModeButton = PixiSprite.from("autoModeButtonUnactiveTexture");
   autoModeButton.interactive = true;
   autoModeButton.anchor.set(0.5);
   autoModeButton.scale = 0.7;
@@ -293,19 +222,25 @@ let pyramidRows = pyramidSettings.rows;
   autoModeButton.y = manualModeButton.y + manualModeButton.height;
 
   autoModeButton.on("pointerdown", () => {
-    if (manualModeButton.texture === manualModeButtonUnactiveTexture) return;
+    if (
+      manualModeButton.texture ===
+      PixiTexture.from("manualModeButtonUnactiveTexture")
+    )
+      return;
 
     playMode.manual = false;
     playMode.auto = true;
-    autoModeButton.texture = autoModeButtonActiveTexture;
-    manualModeButton.texture = manualModeButtonUnactiveTexture;
+    autoModeButton.texture = PixiTexture.from("autoModeButtonActiveTexture");
+    manualModeButton.texture = PixiTexture.from(
+      "manualModeButtonUnactiveTexture"
+    );
 
     autoModeCounter.visible = true;
   });
 
-  app.stage.addChild(autoModeButton);
+  application.self.stage.addChild(autoModeButton);
 
-  const balanceText = new Pixi.Text(`Balance ${balance.score.toString()} $`, {
+  const balanceText = new PixiText(`Balance ${balance.score.toString()} $`, {
     fontSize: 40,
     fill: 0xffffff,
     fontWeight: "bold",
@@ -315,7 +250,7 @@ let pyramidRows = pyramidSettings.rows;
   balanceText.x = betText.x;
   balanceText.y = betText.y + betText.height * 1.5;
 
-  app.stage.addChild(balanceText);
+  application.self.stage.addChild(balanceText);
 
   const autoModeCounter = new CounterBlock(
     autoModeButton.x + autoModeButton.width,
@@ -324,21 +259,21 @@ let pyramidRows = pyramidSettings.rows;
   );
   autoModeCounter.visible = false;
 
-  app.stage.addChild(autoModeCounter);
+  application.self.stage.addChild(autoModeCounter);
 
   const linesSelection = new LinesSelectionBlock(
     pyramid.getPosition().x + pyramid.getDimensions().width,
     pyramid.getPosition().y - pyramid.getDimensions().height / 4
   );
 
-  app.stage.addChild(linesSelection);
+  application.self.stage.addChild(linesSelection);
 
   const table = new Table(100, 100);
 
-  app.stage.addChild(table);
+  application.self.stage.addChild(table);
 
-  app.ticker.add(() => {
-    MatterEngine.update(engine);
+  application.self.ticker.add(() => {
+    engine.update();
 
     playBalls.forEach((ball) => ball.update());
 
@@ -350,11 +285,11 @@ let pyramidRows = pyramidSettings.rows;
 
       pyramid.destroy();
       pyramid = new Pyramid(
-        engine,
-        app,
+        engine.self,
+        application.self,
         pyramidSettings.rows,
-        app.screen.width / 2,
-        app.screen.height / 2 - app.screen.height / 4,
+        width / 2,
+        height / 2 - height / 4,
         5,
         35
       );

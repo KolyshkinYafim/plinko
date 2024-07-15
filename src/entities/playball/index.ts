@@ -1,17 +1,20 @@
-import * as Pixi from "pixi.js";
+import {
+  Application as PixiApplication,
+  Graphics as PixiGraphics,
+} from "pixi.js";
 import Matter from "matter-js";
-import { spawnPosition } from "../../constants";
-import generateRandomDirection from "../../helpers/generateRandomDirection";
+import { spawnPosition } from "constants/index";
+import generateRandomDirection from "helpers/generateRandomDirection";
 
 export default class PlayBall {
+  private app: PixiApplication;
+  private graphics: PixiGraphics;
   private body: Matter.Body;
-  private graphics: Pixi.Graphics;
   private engine: Matter.Engine;
-  private app: Pixi.Application;
 
   constructor(
     engine: Matter.Engine,
-    app: Pixi.Application,
+    app: PixiApplication,
     radius: number,
     color: number
   ) {
@@ -35,7 +38,7 @@ export default class PlayBall {
     );
     Composite.add(engine.world, this.body);
 
-    this.graphics = new Pixi.Graphics()
+    this.graphics = new PixiGraphics()
       .fill(color)
       .circle(0, 0, radius)
       .endFill();

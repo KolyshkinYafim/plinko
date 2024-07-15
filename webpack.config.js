@@ -1,6 +1,7 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
+const { constants } = require("buffer");
 
 const isProd = process.env.NODE_ENV === "production";
 
@@ -13,6 +14,14 @@ module.exports = {
   },
   resolve: {
     extensions: [".ts", ".js"],
+    alias: {
+      assets: path.resolve(__dirname, "src/assets"),
+      constants: path.resolve(__dirname, "src/constants"),
+      entities: path.resolve(__dirname, "src/entities"),
+      helpers: path.resolve(__dirname, "src/helpers"),
+      ui: path.resolve(__dirname, "src/ui"),
+      app: path.resolve(__dirname, "src/app"),
+    },
   },
   module: {
     rules: [

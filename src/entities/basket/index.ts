@@ -1,20 +1,23 @@
-import * as Pixi from "pixi.js";
+import {
+  Graphics as PixiGraphics,
+  Text as PixiText,
+  Application as PixiApplication,
+} from "pixi.js";
 import Matter from "matter-js";
-import { balance, betsList, playBalls } from "../../constants";
-import PlayBall from "entities/playball";
-import formatDate from "../../helpers/formatDate";
+import { balance, betsList, playBalls } from "constants/index";
+import formatDate from "helpers/formatDate";
 
 export default class Basket {
   private body: Matter.Body;
-  private graphics: Pixi.Graphics;
-  private scoreText: Pixi.Text;
-  private app: Pixi.Application;
+  private graphics: PixiGraphics;
+  private scoreText: PixiText;
+  private app: PixiApplication;
   private engine: Matter.Engine;
   private score: number;
 
   constructor(
     engine: Matter.Engine,
-    app: Pixi.Application,
+    app: PixiApplication,
     posX: number,
     posY: number,
     width: number,
@@ -35,14 +38,14 @@ export default class Basket {
 
     Composite.add(engine.world, this.body);
 
-    this.graphics = new Pixi.Graphics()
+    this.graphics = new PixiGraphics()
       .fill(0x4caf50)
       .rect(posX, posY, width, height)
       .endFill();
 
     app.stage.addChild(this.graphics);
 
-    this.scoreText = new Pixi.Text(`${score.toString()}x`, {
+    this.scoreText = new PixiText(`${score.toString()}x`, {
       fontSize: 12,
       fill: 0xffffff,
       fontWeight: "bold",
@@ -62,7 +65,6 @@ export default class Basket {
           (bodyA === this.body && bodyB.label === "playBall") ||
           (bodyB === this.body && bodyA.label === "playBall")
         ) {
-          console.log(this.score);
           const playBall = bodyA.label === "playBall" ? bodyA : bodyB;
           this.handleCollision(playBall);
         }

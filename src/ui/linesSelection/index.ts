@@ -1,9 +1,13 @@
-import { pyramidSettings } from "../../constants";
-import * as PIXI from "pixi.js";
+import {
+  Graphics as PixiGraphics,
+  Text as PixiText,
+  Container as PixiContainer,
+} from "pixi.js";
+import { pyramidSettings } from "constants/index";
 
-export default class LinesSelectionBlock extends PIXI.Container {
-  private buttons: PIXI.Graphics[];
-  private activeButton: PIXI.Graphics | null;
+export default class LinesSelectionBlock extends PixiContainer {
+  private buttons: PixiGraphics[];
+  private activeButton: PixiGraphics | null;
 
   constructor(x: number, y: number) {
     super();
@@ -11,7 +15,7 @@ export default class LinesSelectionBlock extends PIXI.Container {
     this.x = x;
     this.y = y;
 
-    const titleText = new PIXI.Text("Lines", {
+    const titleText = new PixiText("Lines", {
       fontFamily: "Arial",
       fontSize: 24,
       fill: 0xffffff,
@@ -31,14 +35,14 @@ export default class LinesSelectionBlock extends PIXI.Container {
     this.activeButton = null;
 
     buttonTexts.forEach((text, index) => {
-      const button = new PIXI.Graphics();
+      const button = new PixiGraphics();
       button.fill(0xd75d5d).rect(0, 0, buttonWidth, buttonHeight).endFill();
       button.interactive = true;
 
       button.x = -buttonWidth / 2;
       button.y = 60 + (buttonHeight + buttonMargin) * index;
 
-      const buttonText = new PIXI.Text(text, {
+      const buttonText = new PixiText(text, {
         fontFamily: "Arial",
         fontSize: 18,
         fill: 0xffffff,
@@ -61,20 +65,20 @@ export default class LinesSelectionBlock extends PIXI.Container {
     }
   }
 
-  private setActiveButton(button: PIXI.Graphics) {
+  private setActiveButton(button: PixiGraphics) {
     if (this.activeButton) {
       this.activeButton.clear();
       this.activeButton.beginFill(0xd75d5d);
       this.activeButton.drawRect(0, 0, 60, 20);
       this.activeButton.endFill();
-      const buttonText = this.activeButton.getChildAt(0) as PIXI.Text;
+      const buttonText = this.activeButton.getChildAt(0) as PixiText;
       buttonText.style.fill = 0xffffff;
     }
 
     this.activeButton = button;
     this.activeButton.clear();
     this.activeButton.fill(0xe69a9a).rect(0, 0, 60, 20).endFill();
-    const activeButtonText = this.activeButton.getChildAt(0) as PIXI.Text;
+    const activeButtonText = this.activeButton.getChildAt(0) as PixiText;
     activeButtonText.style.fill = 0xffffff;
     const selectedRow = parseInt(activeButtonText.text, 10);
     pyramidSettings.rows = selectedRow;

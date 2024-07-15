@@ -1,13 +1,17 @@
-import * as PIXI from "pixi.js";
-import { autoPlayModeState } from "../../constants/index";
+import {
+  Text as PixiText,
+  Graphics as PixiGraphics,
+  Container as PixiContainer,
+} from "pixi.js";
+import { autoPlayModeState } from "constants/index";
 
-export default class CounterBlock extends PIXI.Container {
+export default class CounterBlock extends PixiContainer {
   private value: number;
-  private text: PIXI.Text;
-  private plusButton: PIXI.Graphics;
-  private minusButton: PIXI.Graphics;
-  private plusText: PIXI.Text;
-  private minusText: PIXI.Text;
+  private text: PixiText;
+  private plusButton: PixiGraphics;
+  private minusButton: PixiGraphics;
+  private plusText: PixiText;
+  private minusText: PixiText;
 
   constructor(x: number, y: number, value: number) {
     super();
@@ -16,7 +20,7 @@ export default class CounterBlock extends PIXI.Container {
     this.y = y;
     this.value = value;
 
-    this.text = new PIXI.Text(this.value.toString(), {
+    this.text = new PixiText(this.value.toString(), {
       fontSize: 24,
       fill: 0xffffff,
     });
@@ -24,7 +28,7 @@ export default class CounterBlock extends PIXI.Container {
     this.text.position.set(65, 0);
     this.addChild(this.text);
 
-    this.plusButton = new PIXI.Graphics();
+    this.plusButton = new PixiGraphics();
     this.plusButton.fill(0xd75d5d);
     this.plusButton.rect(0, 0, 30, 30);
     this.plusButton.endFill();
@@ -33,12 +37,12 @@ export default class CounterBlock extends PIXI.Container {
     this.plusButton.on("pointerdown", this.increment.bind(this));
     this.addChild(this.plusButton);
 
-    this.plusText = new PIXI.Text("+", { fontSize: 24, fill: 0xffffff });
+    this.plusText = new PixiText("+", { fontSize: 24, fill: 0xffffff });
     this.plusText.anchor.set(0.5);
     this.plusText.position.set(15, 15);
     this.plusButton.addChild(this.plusText);
 
-    this.minusButton = new PIXI.Graphics();
+    this.minusButton = new PixiGraphics();
     this.minusButton.fill(0xd75d5d);
     this.minusButton.rect(0, 0, 30, 30);
     this.minusButton.endFill();
@@ -47,7 +51,7 @@ export default class CounterBlock extends PIXI.Container {
     this.minusButton.on("pointerdown", this.decrement.bind(this));
     this.addChild(this.minusButton);
 
-    this.minusText = new PIXI.Text("-", { fontSize: 24, fill: 0xffffff });
+    this.minusText = new PixiText("-", { fontSize: 24, fill: 0xffffff });
     this.minusText.anchor.set(0.5);
     this.minusText.position.set(15, 15);
     this.minusButton.addChild(this.minusText);

@@ -1,17 +1,21 @@
-import * as Pixi from "pixi.js";
+import {
+  Graphics as PixiGraphics,
+  Application as PixiApplication,
+  Ticker as PixiTicker,
+} from "pixi.js";
 import Matter from "matter-js";
-import generateRandomDirection from "../../helpers/generateRandomDirection";
+import generateRandomDirection from "helpers/generateRandomDirection";
 
 export default class Ball {
   private body: Matter.Body;
-  private graphics: Pixi.Graphics;
-  private app: Pixi.Application;
+  private graphics: PixiGraphics;
+  private app: PixiApplication;
   private isAnimating: boolean = false;
   private engine: Matter.Engine;
 
   constructor(
     engine: Matter.Engine,
-    app: Pixi.Application,
+    app: PixiApplication,
     x: number,
     y: number,
     radius: number,
@@ -33,7 +37,7 @@ export default class Ball {
 
     Composite.add(engine.world, this.body);
 
-    this.graphics = new Pixi.Graphics()
+    this.graphics = new PixiGraphics()
       .fill(color)
       .circle(0, 0, radius)
       .endFill();
@@ -94,11 +98,11 @@ export default class Ball {
         this.graphics.scale.x = originalScale;
         this.graphics.scale.y = originalScale;
         this.isAnimating = false;
-        Pixi.Ticker.shared.remove(animate);
+        PixiTicker.shared.remove(animate);
       }
     };
 
-    Pixi.Ticker.shared.add(animate);
+    PixiTicker.shared.add(animate);
   }
 
   public getBody() {
